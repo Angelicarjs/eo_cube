@@ -1,0 +1,9 @@
+pystac-client
+planetary-computer
+stackstac
+xarray
+dask[complete]
+geopandas
+rioxarray
+matplotlib
+jupyterlab
