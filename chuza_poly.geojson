@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "chuza_poly",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 1 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -73.782570942059508, 4.646643266714992 ], [ -73.673135584114817, 4.647268939510189 ], [ -73.675646529230207, 4.554246194913797 ], [ -73.782989432912061, 4.555080533452189 ], [ -73.782570942059508, 4.646643266714992 ] ] ] ] } }
+]
+}
