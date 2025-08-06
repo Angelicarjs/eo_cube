@@ -305,5 +305,27 @@ folium.Rectangle(
 # Mostrar el mapa
 m
 
+def load_data(item: pystac_client.Item, assets: list[str], chunksize: int, resolution: int, epsg: int) -> xarray.DataArray:
+    # load the data from a datacube 
+    cube = stackstac.stack(
+        [item],
+        assets=assets,
+        chunksize=chunksize,
+        resolution=resolution,
+        epsg=epsg
+    )
+    return cube
+
+def main():
+    # load the data from a datacube 
+    item = pystac_client.Item.from_dict(items[0])
+    cube = load_data(item = item, assets = ["B03", "B08"], chunksize=4096, resolution=100, epsg=32618)
+    return cube
 
 
+# %%
+if __name__ == "__main__":
+    cube = main()
+    print(cube)
+
+# %%

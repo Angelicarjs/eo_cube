@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  jupyter-lab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eo_cube_jupyter
+    ports:
+      - "8888:8888"
+      - "8787:8787"  # Dask dashboard
+    volumes:
+      - ./:/workspace
+      - ./data:/workspace/data
+      - jupyter_data:/home/jovyan/.jupyter
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=your_token_here
+      - DASK_DISTRIBUTED__SCHEDULER__WORK_STEALING=True
+      - DASK_DISTRIBUTED__WORKER__MEMORY__TARGET=0.8
+      - DASK_DISTRIBUTED__WORKER__MEMORY__SPILL=0.9
+      - DASK_DISTRIBUTED__WORKER__MEMORY__PAUSE=0.95
+    working_dir: /workspace
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='your_token_here' --NotebookApp.password=''
+    restart: unless-stopped
+    networks:
+      - eo_network
+
+  dask-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eo_cube_scheduler
+    ports:
+      - "8786:8786"  # Dask scheduler dashboard
+    environment:
+      - DASK_DISTRIBUTED__SCHEDULER__WORK_STEALING=True
+    command: dask-scheduler --host 0.0.0.0 --port 8786
+    restart: unless-stopped
+    networks:
+      - eo_network
+
+  dask-worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eo_cube_worker_1
+    depends_on:
+      - dask-scheduler
+    environment:
+      - DASK_DISTRIBUTED__WORKER__MEMORY__TARGET=0.8
+      - DASK_DISTRIBUTED__WORKER__MEMORY__SPILL=0.9
+      - DASK_DISTRIBUTED__WORKER__MEMORY__PAUSE=0.95
+    command: dask-worker dask-scheduler:8786 --nworkers 2 --nthreads 2 --memory-limit 2GB
+    restart: unless-stopped
+    networks:
+      - eo_network
+
+  dask-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eo_cube_worker_2
+    depends_on:
+      - dask-scheduler
+    environment:
+      - DASK_DISTRIBUTED__WORKER__MEMORY__TARGET=0.8
+      - DASK_DISTRIBUTED__WORKER__MEMORY__SPILL=0.9
+      - DASK_DISTRIBUTED__WORKER__MEMORY__PAUSE=0.95
+    command: dask-worker dask-scheduler:8786 --nworkers 2 --nthreads 2 --memory-limit 2GB
+    restart: unless-stopped
+    networks:
+      - eo_network
+
+volumes:
+  jupyter_data:
+
+networks:
+  eo_network:
+    driver: bridge 
